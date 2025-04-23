@@ -1,19 +1,15 @@
+import java.util.*;
 
-import java.util.ArrayList;
-
-public class Admin extends User {
-    public Admin(int empid, String username) {
-        super(empid, username, "admin");
+public class Admin extends Employee {
+    public Admin(int empid, String Fname, String Lname, String email, Date hireDate, double salary, String SSN, String username, String password) {
+        super(empid, Fname, Lname, email, hireDate, salary, SSN, username, password, "admin");
     }
 
-    @Override
-    public void showDashboard() {
-        
+    public void manageEmployees() {
+
     }
 
-    public static void Employees() {
-        ArrayList<Employee> employees = new ArrayList<>();
+    public void generateReports() {
 
-    } 
+    }
 }
-
