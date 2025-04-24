@@ -1,0 +1,13 @@
+import java.sql.*;
+
+public class SalaryService {
+    private Connection connection;
+
+    public double getSalary(Employee emp) {
+        return 1.0;
+    }
+
+    public void updateSalary(Employee emp) {
+        
+    }
+}
