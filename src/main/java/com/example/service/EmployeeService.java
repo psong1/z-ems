@@ -1,4 +1,7 @@
+package com.example.service;
 import java.sql.*;
+
+import com.example.models.Employee;
 
 public class EmployeeService {
     private Connection connection;

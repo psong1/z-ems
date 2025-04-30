@@ -1,3 +1,4 @@
+package com.example.models;
 import java.util.Date;
 
 public abstract class Employee {
