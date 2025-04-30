@@ -1,5 +1,8 @@
 package com.example.access;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 
 import com.example.models.Employee;
@@ -11,19 +14,54 @@ public class AdminAccess {
         this.connection = connection;
     }
 
-    public Employee findEmployee(int empid, String Fname, String Lname, String SSN) {
-        return null;
+    public Employee findEmployee(int empid, String Fname, String Lname, String SSN) throws SQLException {
+        String sql = "SELECT empid, fname, lname, email, hireDate, salary, SSN, username, password, role "
+                   + "FROM employees "
+                   + "WHERE empid = ? OR fname = ? OR lname = ? OR SSN = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, empid);
+            stmt.setString(2, Fname);
+            stmt.setString(3, Lname);
+            stmt.setString(4, SSN);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new Employee(
+                        rs.getInt("empid"),
+                        rs.getString("fname"),
+                        rs.getString("lname"),
+                        rs.getString("email"),
+                        rs.getDate("hireDate"),
+                        rs.getDouble("salary"),
+                        rs.getString("SSN"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role")
+                    );
+                } else {
+                    throw new IllegalArgumentException(
+                      "No employee found for empid=" + empid +
+                      ", name=" + Fname + " " + Lname +
+                      ", SSN=" + SSN
+                    );
+                }
+            }
+        }
     }
 
-    public static void submitNewEmployee(int empid, String Fname, String Lname, Date hireDate, double salary, String SSN, String username, String password, String role) {
+    public void submitNewEmployee(int empid, String Fname, String Lname, Date hireDate, double salary, String SSN, String username, String password, String role) {
 
     }
 
-    public static void update(Employee emp) {
+    public void update(Employee emp) {
 
     }
 
-    public static void updateSalary(double salary) {
+    public void removeEmployee(int empid) {
+
+    }
+
+    public void updateSalary(double salary) {
         
     }
 }
