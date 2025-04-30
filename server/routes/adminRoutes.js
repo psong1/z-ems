@@ -13,12 +13,17 @@ router.post("/add", async (req, res) => {
 });
 
 router.get("/employee", async (req, res) => {
+  const { empid, fname, lname, ssn } = req.query;
+
   try {
-    const result = await admin.getEmployee(req.query.empid);
+    const result = await admin.getEmployee({ empid, fname, lname, ssn });
     res.json(result);
   } catch (err) {
-    console.error("Unable to get employee: ", err);
-    res.status(500).json({ error: "Failed to get employee " });
+    if (err.response?.status === 404) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+    console.error("Unable to get employee:", err);
+    res.status(500).json({ error: "Failed to get employee" });
   }
 });
 

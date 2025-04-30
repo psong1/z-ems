@@ -12,10 +12,14 @@ async function addEmployee(employeeData) {
   return result.data;
 }
 
-async function getEmployee(empid) {
-  const result = await axios.get(JAVA_SERVER, {
-    params: { action: "getEmployee", empid },
-  });
+async function getEmployee({ empid, fname, lname, ssn }) {
+  const params = { action: "getEmployee" };
+  if (empid !== undefined) params.empid = empid;
+  if (fname) params.fname = fname;
+  if (lname) params.lname = lname;
+  if (ssn) params.ssn = ssn;
+
+  const result = await axios.get(JAVA_SERVER, { params });
   return result.data;
 }
 
