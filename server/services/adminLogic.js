@@ -1,5 +1,6 @@
 const axios = require("axios");
-const JAVA_SERVER = process.env.LOCALHOST_API || "http://localhost:8080/api";
+
+const JAVA_SERVER = process.env.LOCALHOST_API;
 
 async function addEmployee(employeeData) {
   const result = await axios.post(JAVA_SERVER, null, {
