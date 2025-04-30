@@ -1,3 +1,4 @@
+package com.example.models;
 import java.util.Date;
 
 public class Payroll {
@@ -8,10 +9,10 @@ public class Payroll {
     private double fed_med;
     private double state_tax;
     private double retire_401k;
-    private double healthcare;
+    private double health_care;
     private int empid;
 
-    public Payroll(int payID, Date payDate, double earnings, double fed_tax, double fed_med, double state_tax, double retire_401k, double healthcare, int empid) {
+    public Payroll(int payID, Date payDate, double earnings, double fed_tax, double fed_med, double state_tax, double retire_401k, double health_care, int empid) {
         this.payID = payID;
         this.payDate = payDate;
         this.earnings = earnings;
@@ -19,7 +20,7 @@ public class Payroll {
         this.fed_tax = fed_tax;
         this.state_tax = state_tax;
         this.retire_401k = retire_401k;
-        this.healthcare = healthcare;
+        this.health_care = health_care;
         this.empid = empid;
     }
 
@@ -80,11 +81,11 @@ public class Payroll {
     }
 
     public double getHealthcare() {
-        return healthcare;
+        return health_care;
     }
 
-    public void setHealthcare(double healthcare) {
-        this.healthcare = healthcare;
+    public void setHealthcare(double health_care) {
+        this.health_care = health_care;
     }
 
     public int getEmpid() {

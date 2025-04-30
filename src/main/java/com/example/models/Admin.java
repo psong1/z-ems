@@ -1,3 +1,4 @@
+package com.example.models;
 import java.util.*;
 
 public class Admin extends Employee {

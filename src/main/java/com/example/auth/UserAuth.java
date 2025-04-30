@@ -1,4 +1,7 @@
+package com.example.auth;
 import java.sql.*;
+
+import com.example.DBConnection;
 
 public class UserAuth {
 

@@ -1,5 +1,8 @@
-import java.sql.*;
+package com.example.access;
+import java.sql.Connection;
 import java.util.Date;
+
+import com.example.models.Employee;
 
 public class AdminAccess {
     private Connection connection;
