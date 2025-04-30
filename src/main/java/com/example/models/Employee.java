@@ -1,7 +1,7 @@
 package com.example.models;
 import java.util.Date;
 
-public abstract class Employee {
+public class Employee {
     private int empid;
     private  String Fname;
     private String Lname;

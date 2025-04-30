@@ -37,18 +37,46 @@ public class AdminAccessTest {
     }
 
     @Test
-    public void testStaticMethodsInvokeWithoutError() {
-        try {
-            Admin dummy = new Admin(1, "John", "Doe", "john@example.com", new Date(), 50000, "111-22-3333", "johndoe", "password");
+    public void testInstanceMethodsInvokeWithoutError() {
+        try (Connection conn = DBConnection.getConnection()) {
+            // 1) create DAO with a live connection
+            AdminAccess dao = new AdminAccess(conn);
 
-            AdminAccess.submitNewEmployee(1, "Jane", "Smith", new Date(), 60000, "222-33-4444", "jsmith", "pass123", "admin");
-            AdminAccess.update(dummy);
-            AdminAccess.updateSalary(70000);
+            // 2) call submitNewEmployee on the instance
+            dao.submitNewEmployee(
+                1, "Jane", "Smith",
+                new Date(),      // hireDate
+                60000,           // salary
+                "222-33-4444",   // SSN
+                "jsmith",        // username
+                "pass123",       // password
+                "admin"          // role
+            );
 
-            // If no exceptions are thrown, we assume these are callable (since they're not implemented)
+            // 3) call update(...) on the instance
+            Admin dummy = new Admin(
+                1,
+                "Jane",
+                "Smith",
+                "jane@example.com",
+                new Date(),
+                60000.00,
+                "222-33-4444",
+                "jsmith",
+                "pass123"
+            );
+            dao.update(dummy);
+
+            // 4) call updateSalary(...) on the instance
+            dao.updateSalary(65000);
+
+            // 5) cleanup
+            dao.removeEmployee(1);
+
+            // if we reach here no exception was thrown
             assertTrue(true);
-        } catch (Exception e) {
-            fail("Static method call failed: " + e.getMessage());
+        } catch (SQLException e) {
+            fail("Instance method call failed: " + e.getMessage());
         }
     }
 }
