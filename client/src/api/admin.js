@@ -1,30 +1,26 @@
 import api from "./client";
 
-const API = import.meta.env.VITE_API_URL;
-
 export async function addEmployee(employeeData) {
-  const res = await api.post("/admin/add", employeeData);
+  const res = await api.post("/admin/employees", employeeData);
   return res.data;
 }
 
-export async function getEmployee({ empid, fname, lname, ssn }) {
-  const res = await api.get("/admin/employee", {
-    params: { empid, fname, lname, ssn },
-  });
+export async function getEmployee(empid) {
+  const res = await api.get(`/admin/employees/${empid}`);
   return res.data;
 }
 
-export async function updateEmployee(employeeData) {
-  const res = await api.post("/admin/update", employeeData);
+export async function updateEmployee(empid, employeeData) {
+  const res = await api.put(`/admin/employees/${empid}`, employeeData);
   return res.data;
 }
 
 export async function deleteEmployee(empid) {
-  const res = await api.post("/admin/delete", { empid });
+  const res = await api.delete(`/admin/employees/${empid}`);
   return res.data;
 }
 
-export async function generatePayroll({ empid, salary }) {
-  const res = await api.post("/admin/generatePayroll", { empid, salary });
+export async function generatePayroll(empid, salary) {
+  const res = await api.post(`/admin/employees/${empid}/payroll`, { salary });
   return res.data;
 }

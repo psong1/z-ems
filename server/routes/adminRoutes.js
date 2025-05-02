@@ -1,79 +1,80 @@
 const express = require("express");
-const router = express.Router();
 const admin = require("../services/adminLogic");
+const router = express.Router();
 
-router.post("/add", async (req, res) => {
+router.post("/employees", async (req, res) => {
+  const auth = req.get("Authorization");
+  if (!auth) return res.status(401).json({ error: "Missing token" });
   try {
-    const token = req.header("Authorization");
-    const result = await admin.addEmployee(req.body);
-    res.json(result);
+    const newEmp = await admin.addEmployee(req.body, auth);
+    res.status(201).json(newEmp);
   } catch (err) {
-    console.error("Unable to add employee: ", err);
-    res.status(500).json({ error: "Failed to add employee" });
+    console.error("Unable to add employee:", err);
+    res
+      .status(err.response?.status || 500)
+      .json({ error: err.message || "Failed to add employee" });
   }
 });
 
-router.get("/employee", async (req, res) => {
-  // 1) Pull the real query params out of req.query
-  const { empid, fname, lname, ssn } = req.query;
-
-  // 2) Grab the actual Authorization header
-  const authHeader = req.get("Authorization");
-  if (!authHeader) {
-    return res.status(401).json({ error: "Missing auth token" });
-  }
-
-  // Sanity check — if empid is required, reject early
-  if (!empid) {
-    return res.status(400).json({ error: "empid is required" });
-  }
-
+router.get("/employees/:empid", async (req, res) => {
+  const auth = req.get("Authorization");
+  if (!auth) return res.status(401).json({ error: "Missing token" });
   try {
-    // 3) Pass the real query _object_ and the real token
-    const employee = await admin.getEmployee(
-      { empid, fname, lname, ssn },
-      authHeader // <<< not the string "getEmployee"
-    );
-    res.json(employee);
+    const emp = await admin.getEmployee(req.params.empid, auth);
+    res.json(emp);
   } catch (err) {
-    if (err.response?.status === 404) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
     console.error("Unable to get employee:", err);
-    res.status(500).json({ error: "Failed to get employee" });
+    const status = err.response?.status || 500;
+    res.status(status).json({ error: err.message || "Failed to get employee" });
   }
 });
 
-router.post("/update", async (req, res) => {
+router.put("/employees/:empid", async (req, res) => {
+  const auth = req.get("Authorization");
+  if (!auth) return res.status(401).json({ error: "Missing token" });
   try {
-    const token = req.header("Authorization");
-    const result = await admin.updateEmployee(req.body);
-    res.json(result);
+    const updated = await admin.updateEmployee(
+      req.params.empid,
+      req.body,
+      auth
+    );
+    res.json(updated);
   } catch (err) {
-    console.error("Unable to update employee: ", err);
-    res.status(500).json({ error: "Failed to update employee " });
+    console.error("Unable to update employee:", err);
+    const status = err.response?.status || 500;
+    res
+      .status(status)
+      .json({ error: err.message || "Failed to update employee" });
   }
 });
 
-router.post("/delete", async (req, res) => {
+router.delete("/employees/:empid", async (req, res) => {
+  const auth = req.get("Authorization");
+  if (!auth) return res.status(401).json({ error: "Missing token" });
   try {
-    const token = req.header("Authorization");
-    const result = await admin.removeEmployee(req.body);
-    res.json(result);
+    await admin.deleteEmployee(req.params.empid, auth);
+    res.status(204).end();
   } catch (err) {
-    console.error("Failed to delete employee: ", err);
-    res.status(500).json({ error: "Failed to delete employee" });
+    console.error("Unable to delete employee:", err);
+    const status = err.response?.status || 500;
+    res
+      .status(status)
+      .json({ error: err.message || "Failed to delete employee" });
   }
 });
 
-router.post("generatePayroll", async (req, res) => {
+router.post("/employees/:empid/payroll", async (req, res) => {
+  const auth = req.get("Authorization");
+  if (!auth) return res.status(401).json({ error: "Missing token" });
   try {
-    const token = req.header("Authorization");
-    const result = await admin.generatePayroll(req.body);
+    const { salary } = req.body;
+    const result = await admin.generatePayroll(req.params.empid, salary, auth);
     res.json(result);
   } catch (err) {
-    console.error("Unable to generate payroll: ", err);
-    res.status(500).json({ error: "Failed to generate payroll" });
+    console.error("Unable to generate payroll:", err);
+    res
+      .status(err.response?.status || 500)
+      .json({ error: err.message || "Failed to generate payroll" });
   }
 });
 
