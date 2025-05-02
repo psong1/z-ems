@@ -1,15 +1,18 @@
-import axios from "axios";
+import api from "./client";
 
 export async function getInfo(empid) {
-  const res = await axios.get("/api/employee", {
-    params: { action: "getInfo", empid },
+  const response = await api.get("/employee/self", {
+    params: { empid },
   });
-  return res.data;
+  return response.data;
 }
 
+// employee.js
 export async function getPayrollHistory(empid) {
-  const res = await axios.get("/api/employee", {
-    params: { action: "getPayrollHistory", empid },
+  const { data } = await api.get("/employee/payroll", {
+    params: { empid, action: "getPayrollHistory" },
+    withCredentials: true,
   });
-  return res.data;
+  console.log("Payroll history JSON:", data);
+  return data;
 }

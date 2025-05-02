@@ -1,0 +1,13 @@
+{
+  "name": "z-ems",
+  "private": true,
+  "scripts": {
+    "start:react": "npm run dev --prefix client",
+    "start:node": "node server/server.js",
+    "start:java": "mvn clean package exec:java -Dexec.mainClass=com.example.App",
+    "start": "concurrently \"npm run start:react\" \"npm run start:node\" \"npm run start:java\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

@@ -39,11 +39,9 @@ public class AdminAccessTest {
     @Test
     public void testInstanceMethodsInvokeWithoutError() {
         try (Connection conn = DBConnection.getConnection()) {
-            // 1) create DAO with a live connection
-            AdminAccess dao = new AdminAccess(conn);
+            AdminAccess adminAccess = new AdminAccess(conn);
 
-            // 2) call submitNewEmployee on the instance
-            dao.submitNewEmployee(
+            adminAccess.submitNewEmployee(
                 1, "Jane", "Smith",
                 new Date(),      // hireDate
                 60000,           // salary
@@ -53,7 +51,6 @@ public class AdminAccessTest {
                 "admin"          // role
             );
 
-            // 3) call update(...) on the instance
             Admin dummy = new Admin(
                 1,
                 "Jane",
@@ -65,15 +62,12 @@ public class AdminAccessTest {
                 "jsmith",
                 "pass123"
             );
-            dao.update(dummy);
+            adminAccess.update(dummy);
 
-            // 4) call updateSalary(...) on the instance
-            dao.updateSalary(65000);
+            adminAccess.updateSalary(65000);
 
-            // 5) cleanup
-            dao.removeEmployee(1);
+            adminAccess.removeEmployee(1);
 
-            // if we reach here no exception was thrown
             assertTrue(true);
         } catch (SQLException e) {
             fail("Instance method call failed: " + e.getMessage());

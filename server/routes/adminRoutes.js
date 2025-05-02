@@ -4,6 +4,7 @@ const admin = require("../services/adminLogic");
 
 router.post("/add", async (req, res) => {
   try {
+    const token = req.header("Authorization");
     const result = await admin.addEmployee(req.body);
     res.json(result);
   } catch (err) {
@@ -13,11 +14,27 @@ router.post("/add", async (req, res) => {
 });
 
 router.get("/employee", async (req, res) => {
+  // 1) Pull the real query params out of req.query
   const { empid, fname, lname, ssn } = req.query;
 
+  // 2) Grab the actual Authorization header
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    return res.status(401).json({ error: "Missing auth token" });
+  }
+
+  // Sanity check — if empid is required, reject early
+  if (!empid) {
+    return res.status(400).json({ error: "empid is required" });
+  }
+
   try {
-    const result = await admin.getEmployee({ empid, fname, lname, ssn });
-    res.json(result);
+    // 3) Pass the real query _object_ and the real token
+    const employee = await admin.getEmployee(
+      { empid, fname, lname, ssn },
+      authHeader // <<< not the string "getEmployee"
+    );
+    res.json(employee);
   } catch (err) {
     if (err.response?.status === 404) {
       return res.status(404).json({ error: "Employee not found" });
@@ -29,6 +46,7 @@ router.get("/employee", async (req, res) => {
 
 router.post("/update", async (req, res) => {
   try {
+    const token = req.header("Authorization");
     const result = await admin.updateEmployee(req.body);
     res.json(result);
   } catch (err) {
@@ -39,6 +57,7 @@ router.post("/update", async (req, res) => {
 
 router.post("/delete", async (req, res) => {
   try {
+    const token = req.header("Authorization");
     const result = await admin.removeEmployee(req.body);
     res.json(result);
   } catch (err) {
@@ -49,6 +68,7 @@ router.post("/delete", async (req, res) => {
 
 router.post("generatePayroll", async (req, res) => {
   try {
+    const token = req.header("Authorization");
     const result = await admin.generatePayroll(req.body);
     res.json(result);
   } catch (err) {

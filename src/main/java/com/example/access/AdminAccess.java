@@ -17,7 +17,7 @@ public class AdminAccess {
     public Employee findEmployee(int empid, String Fname, String Lname, String SSN) throws SQLException {
         String sql = "SELECT empid, fname, lname, email, hireDate, salary, SSN, username, password, role "
                    + "FROM employees "
-                   + "WHERE empid = ? OR fname = ? OR lname = ? OR SSN = ?";
+                   + "WHERE empid = ? AND fname = ? AND lname = ? AND SSN = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, empid);
             stmt.setString(2, Fname);
@@ -27,23 +27,19 @@ public class AdminAccess {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return new Employee(
-                        rs.getInt("empid"),
+                        rs.getInt   ("empid"),
                         rs.getString("fname"),
                         rs.getString("lname"),
                         rs.getString("email"),
-                        rs.getDate("hireDate"),
+                        rs.getDate  ("hireDate"), 
                         rs.getDouble("salary"),
                         rs.getString("SSN"),
                         rs.getString("username"),
                         rs.getString("password"),
                         rs.getString("role")
-                    );
+                    );  
                 } else {
-                    throw new IllegalArgumentException(
-                      "No employee found for empid=" + empid +
-                      ", name=" + Fname + " " + Lname +
-                      ", SSN=" + SSN
-                    );
+                    return null;
                 }
             }
         }
