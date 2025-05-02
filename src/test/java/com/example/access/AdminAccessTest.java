@@ -1,8 +1,8 @@
 package com.example.access;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
-import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,7 +43,7 @@ public class AdminAccessTest {
 
             adminAccess.submitNewEmployee(
                 1, "Jane", "Smith",
-                new Date(),      // hireDate
+                new Date(System.currentTimeMillis()),      // hireDate
                 60000,           // salary
                 "222-33-4444",   // SSN
                 "jsmith",        // username
@@ -56,7 +56,7 @@ public class AdminAccessTest {
                 "Jane",
                 "Smith",
                 "jane@example.com",
-                new Date(),
+                new Date(System.currentTimeMillis()),
                 60000.00,
                 "222-33-4444",
                 "jsmith",
