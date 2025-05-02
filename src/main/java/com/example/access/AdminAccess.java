@@ -1,9 +1,9 @@
 package com.example.access;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import com.example.models.Employee;
 
@@ -45,8 +45,23 @@ public class AdminAccess {
         }
     }
 
-    public void submitNewEmployee(int empid, String Fname, String Lname, Date hireDate, double salary, String SSN, String username, String password, String role) {
+    public void submitNewEmployee(int empid, String Fname, String Lname, Date hireDate, double salary, String SSN, String username, String password, String role) throws SQLException {
+        String sql = "INSERT INTO employees (empid, Fname, Lname, hireDate, salary, SSN, username, password, role)"
+        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, empid);
+            stmt.setString(2, Fname);
+            stmt.setString(3, Lname);
+            stmt.setDate(4, hireDate);
+            stmt.setDouble(5, salary);
+            stmt.setString(6, SSN);
+            stmt.setString(7, username);
+            stmt.setString(8, password);
+            stmt.setString(9, role);
+
+            stmt.executeUpdate();
+        }
     }
 
     public void update(Employee emp) {
