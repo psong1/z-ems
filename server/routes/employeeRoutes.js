@@ -1,24 +1,41 @@
+// server/routes/employeeRoutes.js
 const express = require("express");
 const router = express.Router();
-const employee = require("../services/employeeLogic");
+const emp = require("../services/employeeLogic");
 
 router.get("/self", async (req, res) => {
   try {
-    const result = await employee.getInfo(req.query.empid);
-    res.json(result);
+    // Grab the incoming Authorization header from React
+    const token = req.header("Authorization");
+    if (!token) {
+      return res.status(401).json({ error: "Missing auth token" });
+    }
+
+    // Pass it into your service layer
+    const data = await emp.getInfo(req.query.empid, token);
+    res.json(data);
   } catch (err) {
-    console.error("Unable to fetch employee data: ", err);
-    res.status(500).json({ error: "Failed to fetch employee data" });
+    res
+      .status(err.response?.status || 500)
+      .json({ error: err.response?.data?.error || err.message });
   }
 });
 
 router.get("/payroll", async (req, res) => {
+  const token = req.header("Authorization");
+  if (!token) {
+    console.error("  → Missing Authorization header in /payroll");
+    return res.status(401).json({ error: "Missing auth token" });
+  }
   try {
-    const result = await employee.getPayrollHistory(req.query.empid);
-    res.json(result);
+    const history = await emp.getPayrollHistory(req.query.empid, token);
+    res.json(history);
   } catch (err) {
-    console.error("Unable to get payroll history: ", err);
-    res.status(500).json({ error: "Failed to get payroll history" });
+    // log everything
+    console.error("  → Error fetching payroll history:", err.stack || err);
+    const status = err.response?.status || 500;
+    const msg = err.response?.data?.error || err.message;
+    res.status(status).json({ error: msg });
   }
 });
 

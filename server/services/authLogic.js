@@ -1,16 +1,16 @@
+// server/services/authLogic.js
 const axios = require("axios");
+require("dotenv").config();
 
-const JAVA_SERVER = process.env.LOCALHOST_API;
+const JAVA_API = process.env.JAVA_API || "http://localhost:8080/api/auth";
 
-async function login({ email, password }) {
-  const result = await axios.post(JAVA_SERVER, null, {
-    params: {
-      action: "login",
-      email,
-      password,
-    },
+async function login(email, password) {
+  const url = `${JAVA_API}/auth`;
+  console.log("Calling Javalin auth at:", url);
+  const response = await axios.post(url, null, {
+    params: { action: "login", email, password },
   });
-  return result.data;
+  return response.data;
 }
 
 module.exports = { login };

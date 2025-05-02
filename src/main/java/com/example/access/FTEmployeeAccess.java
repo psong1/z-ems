@@ -47,28 +47,46 @@ public class FTEmployeeAccess {
     }
 
     public List<Payroll> getPayrollHistory(int empid) throws SQLException {
-        String sql = "SELECT payID, pay_date, earnings, fed_tax, fed_med, state_tax, retire_401k, health_care, emp_id "
-                   + "FROM payroll WHERE emp_id = ? ORDER BY pay_date";
+        String sql = """
+            SELECT 
+              payID,
+              pay_date,
+              earnings,
+              fed_tax,
+              fed_med,
+              fed_SS,
+              state_tax,
+              retire_401k,
+              health_care,
+              empid
+            FROM payroll
+            WHERE empid = ?
+            ORDER BY pay_date DESC
+            """;
+    
         List<Payroll> history = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, empid);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Payroll p = new Payroll(
+                    history.add(new Payroll(
                         rs.getInt("payID"),
                         rs.getDate("pay_date"),
-                        rs.getBigDecimal("earnings").doubleValue(),
-                        rs.getBigDecimal("fed_tax").doubleValue(),
-                        rs.getBigDecimal("fed_med").doubleValue(),
-                        rs.getBigDecimal("state_tax").doubleValue(),
-                        rs.getBigDecimal("retire_401k").doubleValue(),
-                        rs.getBigDecimal("health_care").doubleValue(),
-                        rs.getInt("emp_id")
-                    );
-                    history.add(p);
+                        rs.getDouble("earnings"),
+                        rs.getDouble("fed_tax"),
+                        rs.getDouble("fed_med"),
+                        rs.getDouble("fed_SS"),       // <— SS withholding
+                        rs.getDouble("state_tax"),
+                        rs.getDouble("retire_401k"),
+                        rs.getDouble("health_care"),
+                        rs.getInt("empid")
+                    ));
                 }
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();  // this will show the SQLException message and column name
         }
         return history;
     }
+    
 }

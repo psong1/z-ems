@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
     // may need to replace "localhost" with the IP address of the MySQL server if not running locally
-    private static final String URL = "jdbc:mysql://192.168.1.6:3306/employeeData";
+    private static final String URL = "jdbc:mysql://0.0.0.0:3306/employeeData";
     private static final String USER = "root";
     private static final String PASSWORD = "password";
 

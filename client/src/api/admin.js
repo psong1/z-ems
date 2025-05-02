@@ -1,28 +1,30 @@
-import axios from "axios";
+import api from "./client";
+
+const API = import.meta.env.VITE_API_URL;
 
 export async function addEmployee(employeeData) {
-  const res = await axios.post("/api/admin/add", employeeData);
+  const res = await api.post("/admin/add", employeeData);
   return res.data;
 }
 
-export async function getEmployee(empid) {
-  const res = await axios.get("/api/admin/employee", {
-    params: { empid },
+export async function getEmployee({ empid, fname, lname, ssn }) {
+  const res = await api.get("/admin/employee", {
+    params: { empid, fname, lname, ssn },
   });
   return res.data;
 }
 
 export async function updateEmployee(employeeData) {
-  const res = await axios.post("/api/admin/update", employeeData);
+  const res = await api.post("/admin/update", employeeData);
   return res.data;
 }
 
-export async function deleteEmployee({ empid }) {
-  const res = await axios.post("/api/admin/delete", { empid });
+export async function deleteEmployee(empid) {
+  const res = await api.post("/admin/delete", { empid });
   return res.data;
 }
 
 export async function generatePayroll({ empid, salary }) {
-  const res = await axios.post("/api/admin/generatePayroll", { empid, salary });
+  const res = await api.post("/admin/generatePayroll", { empid, salary });
   return res.data;
 }

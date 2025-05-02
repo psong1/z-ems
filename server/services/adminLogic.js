@@ -1,47 +1,51 @@
+require("dotenv").config();
 const axios = require("axios");
+const JAVA_API = process.env.JAVA_API;
+console.log("JAVA_API is:", JAVA_API);
 
-const JAVA_SERVER = process.env.LOCALHOST_API;
-
-async function addEmployee(employeeData) {
-  const result = await axios.post(JAVA_SERVER, null, {
-    params: {
-      action: "addEmployee",
-      ...employeeData,
-    },
+async function addEmployee(employeeData, token) {
+  const url = `${JAVA_API}/admin`;
+  const response = await axios.post(url, null, {
+    params: { action: "addEmployee", ...employeeData },
+    headers: { Authorization: token },
   });
-  return result.data;
+  return response.data;
 }
 
-async function getEmployee({ empid, fname, lname, ssn }) {
-  const params = { action: "getEmployee" };
-  if (empid !== undefined) params.empid = empid;
-  if (fname) params.fname = fname;
-  if (lname) params.lname = lname;
-  if (ssn) params.ssn = ssn;
-
-  const result = await axios.get(JAVA_SERVER, { params });
-  return result.data;
+async function getEmployee(query, token) {
+  const url = `${JAVA_API}/admin`;
+  const response = await axios.get(url, {
+    params: { action: "getEmployee", ...query },
+    headers: { Authorization: token },
+  });
+  return response.data;
 }
 
-async function updateEmployee(employeeData) {
-  const result = await axios.post(JAVA_SERVER, null, {
+async function updateEmployee(employeeData, token) {
+  const url = `${JAVA_API}/admin`;
+  const response = await axios.post(url, null, {
     params: { action: "updateEmployee", ...employeeData },
+    headers: { Authorization: token },
   });
-  return result.data;
+  return response.data;
 }
 
-async function removeEmployee(empid) {
-  const result = await axios.post(JAVA_SERVER, null, {
+async function removeEmployee(empid, token) {
+  const url = `${JAVA_API}/admin`;
+  const response = await axios.post(url, null, {
     params: { action: "removeEmployee", empid },
+    headers: { Authorization: token },
   });
-  return result.data;
+  return response.data;
 }
 
-async function generatePayroll({ empid, salary }) {
-  const result = await axios.post(JAVA_SERVER, null, {
+async function generatePayroll({ empid, salary }, token) {
+  const url = `${JAVA_API}/admin`;
+  const response = await axios.post(url, null, {
     params: { action: "generatePayroll", empid, salary },
+    headers: { Authorization: token },
   });
-  return result.data;
+  return response.data;
 }
 
 module.exports = {

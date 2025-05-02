@@ -49,4 +49,32 @@ public class UserAuth {
         }
         return null;
     }
+
+    public static String getFName(String email) throws SQLException {
+        String sql = "SELECT Fname FROM employees WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Fname");
+                }
+            }
+        }
+        return null;
+    }
+
+    public static String getLName(String email) throws SQLException {
+        String sql = "SELECT Lname FROM employees WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("Lname");
+                }
+            }
+        }
+        return null;
+    }
 } 

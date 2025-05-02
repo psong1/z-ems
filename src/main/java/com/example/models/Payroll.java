@@ -7,17 +7,19 @@ public class Payroll {
     private double earnings;
     private double fed_tax;
     private double fed_med;
+    private double fed_SS;
     private double state_tax;
     private double retire_401k;
     private double health_care;
     private int empid;
 
-    public Payroll(int payID, Date payDate, double earnings, double fed_tax, double fed_med, double state_tax, double retire_401k, double health_care, int empid) {
+    public Payroll(int payID, Date payDate, double earnings, double fed_tax, double fed_med, double fed_SS, double state_tax, double retire_401k, double health_care, int empid) {
         this.payID = payID;
         this.payDate = payDate;
         this.earnings = earnings;
         this.fed_med = fed_med;
         this.fed_tax = fed_tax;
+        this.fed_SS = fed_SS;
         this.state_tax = state_tax;
         this.retire_401k = retire_401k;
         this.health_care = health_care;
@@ -64,6 +66,14 @@ public class Payroll {
         this.fed_med = fed_med;
     }
 
+    public double getFed_SS() {
+        return fed_SS;
+    }
+
+    public void setFed_SS(double fed_SS) {
+        this.fed_SS = fed_SS;
+    }
+
     public double getState_tax() {
         return state_tax;
     }
@@ -95,4 +105,6 @@ public class Payroll {
     public void setEmpid(int empid) {
         this.empid = empid;
     }
+
+    
 }
