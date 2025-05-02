@@ -1,50 +1,43 @@
 require("dotenv").config();
 const axios = require("axios");
 const JAVA_API = process.env.JAVA_API;
-console.log("JAVA_API is:", JAVA_API);
 
-async function addEmployee(employeeData, token) {
-  const url = `${JAVA_API}/admin`;
-  const response = await axios.post(url, null, {
-    params: { action: "addEmployee", ...employeeData },
+async function addEmployee(data, token) {
+  const response = await axios.post(`${JAVA_API}/admin/employees`, data, {
     headers: { Authorization: token },
   });
   return response.data;
 }
 
-async function getEmployee(query, token) {
-  const url = `${JAVA_API}/admin`;
-  const response = await axios.get(url, {
-    params: { action: "getEmployee", ...query },
+async function getEmployee(id, token) {
+  const response = await axios.get(`${JAVA_API}/admin/employees/${id}`, {
     headers: { Authorization: token },
   });
   return response.data;
 }
 
-async function updateEmployee(employeeData, token) {
-  const url = `${JAVA_API}/admin`;
-  const response = await axios.post(url, null, {
-    params: { action: "updateEmployee", ...employeeData },
+async function updateEmployee(id, data, token) {
+  const response = await axios.put(`${JAVA_API}/admin/employees/${id}`, data, {
     headers: { Authorization: token },
   });
   return response.data;
 }
 
-async function removeEmployee(empid, token) {
-  const url = `${JAVA_API}/admin`;
-  const response = await axios.post(url, null, {
-    params: { action: "removeEmployee", empid },
+async function deleteEmployee(id, token) {
+  const response = await axios.delete(`${JAVA_API}/admin/employees/${id}`, {
     headers: { Authorization: token },
   });
   return response.data;
 }
 
-async function generatePayroll({ empid, salary }, token) {
-  const url = `${JAVA_API}/admin`;
-  const response = await axios.post(url, null, {
-    params: { action: "generatePayroll", empid, salary },
-    headers: { Authorization: token },
-  });
+async function generatePayroll(id, salary, token) {
+  const response = await axios.post(
+    `${JAVA_API}/admin/employees/${id}/payroll`,
+    { salary },
+    {
+      headers: { Authorization: token },
+    }
+  );
   return response.data;
 }
 
@@ -52,6 +45,6 @@ module.exports = {
   addEmployee,
   getEmployee,
   updateEmployee,
-  removeEmployee,
+  deleteEmployee,
   generatePayroll,
 };

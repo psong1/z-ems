@@ -7,7 +7,6 @@ export async function getInfo(empid) {
   return response.data;
 }
 
-// employee.js
 export async function getPayrollHistory(empid) {
   const { data } = await api.get("/employee/payroll", {
     params: { empid, action: "getPayrollHistory" },

@@ -1,9 +1,9 @@
-// src/components/auth/LoginPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, Form, Container } from "react-bootstrap";
 import { login } from "../../api/auth";
 import z from "../../../public/z.png";
+import "../../assets/css/auth/LoginPage.css";
 
 export default function LoginPage({ setUser }) {
   const [email, setEmail] = useState("");
@@ -17,6 +17,7 @@ export default function LoginPage({ setUser }) {
     try {
       const result = await login(email, password);
       if (result.authenticated) {
+        localStorage.setItem("jwt", result.token);
         setUser({
           empid: result.empid,
           role: result.role,
@@ -34,7 +35,7 @@ export default function LoginPage({ setUser }) {
   };
 
   return (
-    <Container className="mt-5">
+    <Container fluid className="login">
       <img
         src={z}
         alt="Z Logo"
@@ -43,7 +44,7 @@ export default function LoginPage({ setUser }) {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="loginEmail">
+        <Form.Group className="email" controlId="loginEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control
             type="email"
@@ -54,7 +55,7 @@ export default function LoginPage({ setUser }) {
           />
         </Form.Group>
 
-        <Form.Group className="mb-4" controlId="loginPassword">
+        <Form.Group className="password" controlId="loginPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
             type="password"

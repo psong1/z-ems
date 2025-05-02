@@ -28,7 +28,6 @@ export default function AddEmployeeForm() {
     try {
       const res = await addEmployee(form);
       setMsg({ variant: "success", text: res.status || "Employee added" });
-      // navigate back to admin dashboard after a brief pause
       setTimeout(() => nav("/admin"), 1000);
     } catch (err) {
       setMsg({ variant: "danger", text: "Failed to add employee" });
@@ -72,6 +71,16 @@ export default function AddEmployeeForm() {
               value={form.lname}
               onChange={handleChange}
               placeholder="e.g. Smith"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group as={Col} md={4} controlId="email">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              name="email"
+              value={form.email}
+              onChange={handleChange}
               required
             />
           </Form.Group>

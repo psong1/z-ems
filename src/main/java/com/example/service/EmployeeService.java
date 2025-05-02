@@ -15,25 +15,26 @@ public class EmployeeService {
 
     public void addEmployee(int empid, 
             String fname, 
-            String lname, 
+            String lname,
+            String email,
             Date hireDate, 
             double salary, 
             String ssn, 
             String username, 
             String password, 
             String role) throws SQLException {
-        adminAccess.submitNewEmployee(empid, fname, lname, hireDate, salary, ssn, username, password, role);
+        adminAccess.submitNewEmployee(empid, fname, lname, email, hireDate, salary, ssn, username, password, role);
     }
 
-    public Employee getEmployee() {
-        return null;
+    public Employee getEmployee(int empid, String Fname, String Lname, String ssn) throws SQLException {
+        return adminAccess.findEmployee(empid, Fname, Lname, ssn);
     }
     
-    public void updateEmployee() {
-
+    public void updateEmployee(Employee e) throws SQLException {
+        adminAccess.update(e);
     }
 
-    public void removeEmployee() {
-
+    public void removeEmployee(int empid) throws SQLException {
+        adminAccess.removeEmployee(empid);
     }
 }

@@ -42,20 +42,21 @@ public class AdminAccessTest {
             AdminAccess adminAccess = new AdminAccess(conn);
 
             adminAccess.submitNewEmployee(
-                1, "Jane", "Smith",
-                new Date(System.currentTimeMillis()),      // hireDate
-                60000,           // salary
-                "222-33-4444",   // SSN
-                "jsmith",        // username
-                "pass123",       // password
-                "admin"          // role
+                100, "Jane", "Smith",
+                "Jane@example.com",
+                new Date(System.currentTimeMillis()), 
+                60000,  
+                "222-33-4444",
+                "jsmith",
+                "pass123", 
+                "admin"
             );
 
             Admin dummy = new Admin(
-                1,
+                100,
                 "Jane",
                 "Smith",
-                "jane@example.com",
+                "Jane@example.com",
                 new Date(System.currentTimeMillis()),
                 60000.00,
                 "222-33-4444",
@@ -64,9 +65,9 @@ public class AdminAccessTest {
             );
             adminAccess.update(dummy);
 
-            adminAccess.updateSalary(65000);
+            adminAccess.updateSalary(0.32, 30000.00, 60000.00);
 
-            adminAccess.removeEmployee(1);
+            adminAccess.removeEmployee(100);
 
             assertTrue(true);
         } catch (SQLException e) {

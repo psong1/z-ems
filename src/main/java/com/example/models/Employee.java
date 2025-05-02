@@ -13,6 +13,8 @@ public class Employee {
     private String password;
     private String role; 
 
+    public Employee() {}
+
     public Employee(int empid, String Fname, String Lname, String email, Date hireDate, double salary, String SSN, String username, String password, String role) {
         this.empid = empid;
         this.Fname = Fname;

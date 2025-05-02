@@ -1,4 +1,5 @@
 package com.example;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,50 +19,51 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 
-
-
 public class App {
+
     public static void main(String[] args) {
-
         Javalin app = Javalin.create(cfg -> {
-
-            cfg.http.defaultContentType = "application/json";        
-        })
-        .start("0.0.0.0", 8080);
+            cfg.http.defaultContentType = "application/json";
+        });
         
-
-
         app.post("/api/auth", App::handleAuth);
-
-        app.get ("/api/admin",  App::handleAdmin);
-        app.post("/api/admin",  App::handleAdmin);
-
-        app.get("/api/employee", App::handleEmployee);
+        
+        app.post  ("/api/admin/employees",               App::handleAdminAdd);
+        app.get   ("/api/admin/employees/{empid}",       App::handleAdminGet);
+        app.put   ("/api/admin/employees/{empid}",       App::handleAdminUpdate);
+        app.delete ("/api/admin/employees/{empid}",      App::handleAdminDelete);
+        
+        app.post  ("/api/admin/employees/{empid}/payroll", App::handleGeneratePayroll);
+        
+        app.get("/api/employee/self",    App::handleEmployeeGetSelf);
+        app.get("/api/employee/payroll", App::handleEmployeeGetPayroll);
+        
+        app.start("0.0.0.0", 8080);
+        
     }
 
-    private static void handleAuth(Context ctxt) {
-        String action = ctxt.queryParam("action");
+    // AUTH
+    private static void handleAuth(Context ctx) {
+        String action = ctx.queryParam("action");
         if (!"login".equals(action)) {
-            ctxt.status(400).json(Map.of("error", "Invalid auth action"));
+            ctx.status(400).json(Map.of("error", "Invalid auth action"));
             return;
         }
-        String email = ctxt.queryParam("email");
-        String pw = ctxt.queryParam("password");
+        String email = ctx.queryParam("email");
+        String pw    = ctx.queryParam("password");
         try {
             if (!UserAuth.authenticate(email, pw)) {
-                ctxt.status(401).json(Map.of("authenticated", false));
+                ctx.status(401).json(Map.of("authenticated", false));
                 return;
             }
-            int empid   = UserAuth.getEmpId(email);
-            String role = UserAuth.getRole(email);
-            // var names = UserAuth.getNamesByEmail(email);
+            int    empid = UserAuth.getEmpId(email);
+            String role  = UserAuth.getRole(email);
             String fname = UserAuth.getFName(email);
             String lname = UserAuth.getLName(email);
-    
+
             String token = JWTUtil.generateToken(empid, role);
 
-            // 2) return first & last name separately
-            ctxt.json(Map.of(
+            ctx.json(Map.of(
                 "authenticated", true,
                 "empid",         empid,
                 "role",          role,
@@ -70,133 +72,120 @@ public class App {
                 "token",         token
             ));
         } catch (SQLException e) {
-            ctxt.status(500).json(Map.of("error", "DB error: " + e.getMessage()));
+            ctx.status(500).json(Map.of("error", "DB error: " + e.getMessage()));
         }
     }
 
-    private static Jws<Claims> requireJwt(Context ctxt) {
-        String auth = ctxt.header("Authorization");
-        if (auth == null || !auth.startsWith("Bearer ")) {
+    private static Jws<Claims> requireJwt(Context ctx) {
+        String h = ctx.header("Authorization");
+        if (h == null || !h.startsWith("Bearer ")) {
             throw new JwtException("Missing or invalid Authorization header");
         }
-        return JWTUtil.parseToken(auth.substring(7));
+        return JWTUtil.parseToken(h.substring(7));
     }
-    
+
     // ADMIN
-    private static void handleAdmin(Context ctxt) {
-        Jws<Claims> jwt;
-        try {
-            jwt = requireJwt(ctxt);
-        } catch (JwtException e) {
-            ctxt.status(401).json(Map.of("error", "Not authenticated"));
-            return;
-        }
-        
-        String role = jwt.getBody().get("role", String.class);
-        if (!"admin".equals(role)) {
-            ctxt.status(403).json(Map.of("error", "Admin only"));
-            return;
-        }
-
-        String action = ctxt.queryParam("action");
+    private static void handleAdminAdd(Context ctx) {
+        Jws<Claims> jwt = authorizeAdmin(ctx);
+        Employee e = ctx.bodyAsClass(Employee.class);
         try (Connection conn = DBConnection.getConnection()) {
-            AdminAccess adminAccess = new AdminAccess(conn);
+            new AdminAccess(conn).submitNewEmployee(
+                e.getEmpid(), e.getFname(), e.getLname(), e.getEmail(),
+                new java.sql.Date(e.getHireDate().getTime()),
+                e.getSalary(), e.getSSN(), e.getUsername(), e.getPassword(), e.getRole()
+            );
+            ctx.status(201).json(Map.of("status","added"));
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        }
+    }
 
-            switch (action) {
-                case "addEmployee" -> {
-                    int    empid  = Integer.parseInt(ctxt.queryParam("empid"));
-                    String fname  = ctxt.queryParam("fname");
-                    String lname  = ctxt.queryParam("lname");
-                    java.sql.Date hd    = java.sql.Date.valueOf(ctxt.queryParam("hireDate"));
-                    double salary = Double.parseDouble(ctxt.queryParam("salary"));
-                    String ssn    = ctxt.queryParam("ssn");
-                    String usern  = ctxt.queryParam("username");
-                    String passw  = ctxt.queryParam("password");
-                    String roleIn = ctxt.queryParam("role");
-                    adminAccess.submitNewEmployee(empid, fname, lname, hd, salary, ssn, usern, passw, roleIn);
-                    ctxt.json(Map.of("status", "added"));
-                }
-                case "updateEmployee" -> {
-                    Employee e = ctxt.bodyAsClass(Employee.class);
-                    adminAccess.update(e);
-                    ctxt.json(Map.of("status", "updated"));
-                }
-                case "removeEmployee", "deleteEmployee" -> {
-                    int empid = Integer.parseInt(ctxt.queryParam("empid"));
-                    adminAccess.removeEmployee(empid);
-                    ctxt.json(Map.of("status", "deleted"));
-                }
-                case "generatePayroll" -> {
-                    int    empid  = Integer.parseInt(ctxt.queryParam("empid"));
-                    double salary = Double.parseDouble(ctxt.queryParam("salary"));
-                    new GeneratePayroll().generateEmployeePayroll(empid, salary);
-                    ctxt.json(Map.of("status", "payroll generated"));
-                }
-                case "getEmployee" -> {
-                    Integer empid = ctxt.queryParamAsClass("empid", Integer.class).getOrDefault(null);
-                    String  fname = ctxt.queryParam("fname"); 
-                    String  lname = ctxt.queryParam("lname");
-                    String  ssn   = ctxt.queryParam("ssn");
-                
-                    Employee e = adminAccess.findEmployee(empid, fname, lname, ssn);
-                
-                    if (e == null) {
-                        ctxt.status(404).json(Map.of("error", "Employee not found"));
-                    } else {
-                        ctxt.json(e);
-                    }
-                }
-                
-                default -> {
-                    ctxt.status(400).json(Map.of("error", "Invalid admin action"));
-                }
+    private static void handleAdminGet(Context ctx) {
+        Jws<Claims> jwt = authorizeAdmin(ctx);
+        int empid = Integer.parseInt(ctx.pathParam("empid"));
+        try (Connection conn = DBConnection.getConnection()) {
+            Employee e = new AdminAccess(conn).findById(empid);
+            if (e == null) {
+                ctx.status(404).json(Map.of("error","not found"));
+            } else {
+                ctx.json(e);
             }
-        } catch (SQLException e) {
-            ctxt.status(500).json(Map.of("error", "DB error: " + e.getMessage()));
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        }
+    }
+
+    private static void handleAdminUpdate(Context ctx) {
+        Jws<Claims> jwt = authorizeAdmin(ctx);
+        int empid = Integer.parseInt(ctx.pathParam("empid"));
+        Employee e = ctx.bodyAsClass(Employee.class);
+        if (e.getEmpid() != empid) {
+            ctx.status(400).json(Map.of("error","URL empid/body empid mismatch"));
+            return;
+        }
+        try (Connection conn = DBConnection.getConnection()) {
+            new AdminAccess(conn).update(e);
+            ctx.json(Map.of("status","updated"));
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        }
+    }
+
+    private static void handleAdminDelete(Context ctx) {
+        Jws<Claims> jwt = authorizeAdmin(ctx);
+        int empid = Integer.parseInt(ctx.pathParam("empid"));
+        try (Connection conn = DBConnection.getConnection()) {
+            new AdminAccess(conn).removeEmployee(empid);
+            ctx.json(Map.of("status","deleted"));
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        }
+    }
+
+    private static void handleGeneratePayroll(Context ctx) {
+        Jws<Claims> jwt = authorizeAdmin(ctx);
+        int empid = Integer.parseInt(ctx.pathParam("empid"));
+        Map<String,Double> body = ctx.bodyAsClass(Map.class);
+        double salary = body.getOrDefault("salary", 0.0);
+        new GeneratePayroll().generateEmployeePayroll(empid, salary);
+        ctx.json(Map.of("status","payroll generated"));
+    }
+
+    private static Jws<Claims> authorizeAdmin(Context ctx) {
+        try {
+            Jws<Claims> jwt = requireJwt(ctx);
+            if (!"admin".equals(jwt.getBody().get("role", String.class))) {
+                ctx.status(403).json(Map.of("error","admin only"));
+                throw new JwtException("must be admin");
+            }
+            return jwt;
+        } catch (JwtException e) {
+            throw new RuntimeException();
         }
     }
 
     // EMPLOYEE
-    private static void handleEmployee(Context ctxt) {
-        Jws<Claims> jwt;
-        try {
-            jwt = requireJwt(ctxt);
-        } catch (JwtException e) {
-            ctxt.status(401).json(Map.of("error", "Not authenticated"));
-            return;
-        }
-        int currentEmpId = Integer.parseInt(jwt.getBody().getSubject());
-
-        String action = ctxt.queryParam("action");
-        Integer empid = ctxt.queryParamAsClass("empid", Integer.class).getOrDefault(null);
-    
+    private static void handleEmployeeGetSelf(Context ctx) {
+        Jws<Claims> jwt = requireJwt(ctx);
+        int current = Integer.parseInt(jwt.getBody().getSubject());
         try (Connection conn = DBConnection.getConnection()) {
-            FTEmployeeAccess empAccess = new FTEmployeeAccess(conn);
-    
-            switch (action) {
-                case "getSelf" -> {
-                    try {
-                        Employee e = empAccess.getEmployeeById(empid, currentEmpId);
-                        ctxt.json(e);
-                    } catch (SecurityException se) {
-                        ctxt.status(403).json(Map.of("error", se.getMessage()));
-                    }
-                }
-                case "getPayrollHistory" -> {
-                    if (!empid.equals(currentEmpId)) {
-                      ctxt.status(403).json(Map.of("error", "Access denied"));
-                    } else {
-                      List<Payroll> history = empAccess.getPayrollHistory(empid);
-                      ctxt.json(history);
-                    }
-                  }
-                default -> {
-                    ctxt.status(400).json(Map.of("error", "Invalid employee action"));
-                }
-            }
-        } catch (SQLException e) {
-            ctxt.status(500).json(Map.of("error", "DB error: " + e.getMessage()));
+            Employee e = new FTEmployeeAccess(conn).getEmployeeById(current, current);
+            ctx.json(e);
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        } catch (SecurityException se) {
+            ctx.status(403).json(Map.of("error",se.getMessage()));
         }
     }
-    
+
+    private static void handleEmployeeGetPayroll(Context ctx) {
+        Jws<Claims> jwt = requireJwt(ctx);
+        int current = Integer.parseInt(jwt.getBody().getSubject());
+        try (Connection conn = DBConnection.getConnection()) {
+            List<Payroll> history = new FTEmployeeAccess(conn).getPayrollHistory(current);
+            ctx.json(history);
+        } catch (SQLException ex) {
+            ctx.status(500).json(Map.of("error","DB error: "+ex.getMessage()));
+        }
+    }
 }

@@ -1,10 +1,9 @@
-// src/App.jsx
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./components/auth/LoginPage";
 import NotFoundPage from "./components/NotFoundPage";
 import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./components/admin/AdminDashboard"; // optional landing page
+import AdminDashboard from "./components/admin/AdminDashboard";
 import AddEmployeeForm from "./components/admin/AddEmployeeForm";
 import EmployeeSearch from "./components/admin/EmployeeSearch";
 import GeneratePayrollForm from "./components/admin/GeneratePayrollForm";
