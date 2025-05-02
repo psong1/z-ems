@@ -75,7 +75,7 @@ public class FTEmployeeAccess {
                         rs.getDouble("earnings"),
                         rs.getDouble("fed_tax"),
                         rs.getDouble("fed_med"),
-                        rs.getDouble("fed_SS"),       // <— SS withholding
+                        rs.getDouble("fed_SS"), 
                         rs.getDouble("state_tax"),
                         rs.getDouble("retire_401k"),
                         rs.getDouble("health_care"),
@@ -84,7 +84,7 @@ public class FTEmployeeAccess {
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();  // this will show the SQLException message and column name
+            ex.printStackTrace(); 
         }
         return history;
     }
