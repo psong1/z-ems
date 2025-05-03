@@ -58,52 +58,52 @@
 
 ### **LOGIN PAGE**
 
-![Login Page](client\src\assets\imgs\login.png)
+![Login Page](./client\src\assets\imgs\login.png)
 
 ### **ADMIN**
 
-![Admin Home](client\src\assets\imgs\admin-home.png)
+![Admin Home](./client\src\assets\imgs\admin-home.png)
 
 - Dashboard logged in as an "admin"
 
-![Admin Add](client\src\assets\imgs\admin-add.png)
+![Admin Add](./client\src\assets\imgs\admin-add.png)
 
 - Form to add an employee as an "admin"
 
-![Admin Read](client\src\assets\imgs\admin-read.png)
+![Admin Read](./client\src\assets\imgs\admin-read.png)
 
 - Admin is able to read employee all employees' data
 - Form to search for an employee as an "admin"
 
-![Admin Update/Delete](client\src\assets\imgs\admin-ud.png)
+![Admin Update/Delete](./client\src\assets\imgs\admin-ud.png)
 
 - Admin is able to update or delete an employee
 - Returned table of pseudo-employee data from database with buttons to update/delete employee
 
-![Admin Update Salary](client\src\assets\imgs\admin-salary.png)
+![Admin Update Salary](./client\src\assets\imgs\admin-salary.png)
 
 - Admin is able to update all employees' salary by a percentage within a specific range
 - Form to update salary by percentage within the salary range
 - Table is returned with employee data of those that were updated
 
-![Admin All Payroll](client\src\assets\imgs\admin-payroll-all.png)
+![Admin All Payroll](./client\src\assets\imgs\admin-payroll-all.png)
 
 - Admin is able to read all payroll data in the database
 - Table is returned with all payroll data when admin wanted to read all payroll history
 - Sorted by employee ID then pay date
 
-![Admin Totals Division](client\src\assets\imgs\admin-totals-div.png)
+![Admin Totals Division](./client\src\assets\imgs\admin-totals-div.png)
 
 - Admin is able to read total pay by month/year by division
 
-![Admin Totals Job Title](client\src\assets\imgs\admin-payroll-jt.png)
+![Admin Totals Job Title](./client\src\assets\imgs\admin-payroll-jt.png)
 
 - Admin is able to read total pay by month/year by job title
 
 ### **EMPLOYEE**
 
-![Employee Profile](client\src\assets\imgs\emp-profile.png)
-![Employee Payroll](client\src\assets\imgs\emp-payroll.png)
+![Employee Profile](./client\src\assets\imgs\emp-profile.png)
+![Employee Payroll](./client\src\assets\imgs\emp-payroll.png)
 
 - Employee is only able to read their data once logged in
 
