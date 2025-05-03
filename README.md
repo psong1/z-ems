@@ -10,7 +10,7 @@
 
 ## [Description](#table-of-contents)
 
-- Z is a company with 40 full-time employees and will triple their workforce within the next 18 months. We have provided them a new employee management system that will help them maintain their employee data.
+- Z is a company with 40 full-time employees and will triple their workforce within the next 18 months. We have provided them a new employee management system that will help them maintain their employee data as it continues to grow.
 
 ## [Tech Stack](#table-of-contents)
 
@@ -31,7 +31,7 @@
 - **Express**
   - Handles routing to Java API
 - **React**
-  - UI library to dynamically rendering login page, dashboard, forms, and tables
+  - UI library to dynamically render login page, dashboard, forms, and tables
 - **React-Router**
   - Used for client-side routing
 - **React Bootstrap**
