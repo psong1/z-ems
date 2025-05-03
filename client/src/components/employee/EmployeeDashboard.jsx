@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
-import { Container, Card, Table, Spinner, Alert } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Spinner,
+  Alert,
+  Tabs,
+  Tab,
+  Row,
+  Col,
+} from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { getInfo, getPayrollHistory } from "../../api/employee";
+import Hero from "../hero/Hero";
+import PayrollHistoryTable from "./PayrollHistoryTable";
+import PersonalInfoCard from "./PersonalInfoCard";
+import LogoutButton from "../auth/LogoutButton";
 
-export default function EmployeeDashboard({ empid }) {
+export default function EmployeeDashboard({ empid, setUser }) {
   const [info, setInfo] = useState(null);
   const [history, setHistory] = useState(null);
   const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("profile");
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([getInfo(empid), getPayrollHistory(empid)])
@@ -19,6 +35,12 @@ export default function EmployeeDashboard({ empid }) {
       });
   }, [empid]);
 
+  // const handleLogout = () => {
+  //   localStorage.removeItem("jwt");
+  //   setUser(null);
+  //   navigate("/login", { replace: true });
+  // };
+
   if (error) {
     return (
       <Container className="mt-5">
@@ -26,6 +48,7 @@ export default function EmployeeDashboard({ empid }) {
       </Container>
     );
   }
+
   if (!info || history === null) {
     return (
       <Container className="text-center mt-5">
@@ -35,55 +58,42 @@ export default function EmployeeDashboard({ empid }) {
   }
 
   return (
-    <Container className="mt-4">
-      <Card className="mb-4">
-        <Card.Header>Your Profile</Card.Header>
-        <Card.Body>
-          <Card.Text>
-            <strong>Name:</strong> {info.fname} {info.lname}
-          </Card.Text>
-          <Card.Text>
-            <strong>Email:</strong> {info.email}
-          </Card.Text>
-          <Card.Text>
-            <strong>Hire Date:</strong>{" "}
-            {new Date(info.hireDate).toLocaleDateString()}
-          </Card.Text>
-          <Card.Text>
-            <strong>Role:</strong> {info.role}
-          </Card.Text>
-        </Card.Body>
-      </Card>
+    <>
+      <Hero />
 
-      <h4>Payroll History</h4>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Earnings</th>
-            <th>Fed Tax</th>
-            <th>Medicare</th>
-            <th>Social Security</th>
-            <th>State Tax</th>
-            <th>401k</th>
-            <th>Health Care</th>
-          </tr>
-        </thead>
-        <tbody>
-          {history.map((p) => (
-            <tr key={p.payID}>
-              <td>{new Date(p.payDate).toLocaleDateString()}</td>
-              <td>${p.earnings.toFixed(2)}</td>
-              <td>${p.fed_tax.toFixed(2)}</td>
-              <td>${p.fed_med.toFixed(2)}</td>
-              <td>${p.fed_SS.toFixed(2)}</td>
-              <td>${p.state_tax.toFixed(2)}</td>
-              <td>${p.retire_401k.toFixed(2)}</td>
-              <td>${p.healthcare.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </Container>
+      <Container fluid className="bg-light py-3">
+        <Row>
+          <Col>
+            <h5>
+              👋 Hello, {info.fname} {info.lname}
+            </h5>
+          </Col>
+          <Col className="text-end">
+            <LogoutButton setUser={setUser} />
+          </Col>
+        </Row>
+      </Container>
+
+      <Container className="mt-4">
+        <Tabs
+          id="employee-tabs"
+          activeKey={activeTab}
+          onSelect={(k) => setActiveTab(k)}
+          className="mb-3"
+        >
+          <Tab eventKey="profile" title="Profile" />
+          <Tab eventKey="history" title="Payment History" />
+        </Tabs>
+
+        {activeTab === "profile" && <PersonalInfoCard user={info} />}
+
+        {activeTab === "history" && (
+          <>
+            <h4>Payroll History</h4>
+            <PayrollHistoryTable records={history} />
+          </>
+        )}
+      </Container>
+    </>
   );
 }

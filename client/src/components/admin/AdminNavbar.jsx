@@ -1,4 +1,3 @@
-// src/components/admin/AdminNavbar.jsx
 import { Nav, Navbar, Container, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +26,13 @@ export default function AdminNavbar({ user }) {
               onClick={() => nav("/admin/search")}
             >
               🔍 Search
+            </Button>
+            <Button
+              variant="outline-success"
+              className="me-2"
+              onClick={() => nav("/admin/update")}
+            >
+              📝 Update
             </Button>
             <Button
               variant="outline-success"

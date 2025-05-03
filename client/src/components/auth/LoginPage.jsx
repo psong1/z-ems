@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, Form, Container } from "react-bootstrap";
 import { login } from "../../api/auth";
-import z from "../../../public/z.png";
+import Hero from "../hero/Hero";
 import "../../assets/css/auth/LoginPage.css";
 
 export default function LoginPage({ setUser }) {
@@ -26,50 +26,56 @@ export default function LoginPage({ setUser }) {
         });
         navigate(result.role === "admin" ? "/admin" : "/employee");
       } else {
-        setError("Invalid credentials");
+        setError("Invalid email/password");
       }
     } catch (err) {
       console.error("Login error", err);
-      setError("Server error");
+      if (err.response?.status === 401) {
+        setError("Invalid email/password");
+      } else {
+        setError("Server error");
+      }
     }
   };
 
   return (
-    <Container fluid className="login">
-      <img
-        src={z}
-        alt="Z Logo"
-        style={{ maxWidth: "150px", width: "100%", marginBottom: "1.5rem" }}
-      />
-      {error && <Alert variant="danger">{error}</Alert>}
+    <>
+      <Hero />
+      <Container fluid className="login">
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            {error}
+          </Alert>
+        )}
 
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="email" controlId="loginEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
-            type="email"
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </Form.Group>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3" controlId="loginEmail">
+            <Form.Label>Email Address</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Form.Group className="password" controlId="loginPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="loginPassword">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit" className="w-100">
-          Sign In
-        </Button>
-      </Form>
-    </Container>
+          <Button variant="primary" type="submit" className="w-100">
+            Sign In
+          </Button>
+        </Form>
+      </Container>
+    </>
   );
 }

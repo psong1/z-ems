@@ -12,6 +12,6 @@ export async function getPayrollHistory(empid) {
     params: { empid, action: "getPayrollHistory" },
     withCredentials: true,
   });
-  console.log("Payroll history JSON:", data);
+
   return data;
 }
