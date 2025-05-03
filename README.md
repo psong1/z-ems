@@ -80,7 +80,7 @@
 - Admin is able to update or delete an employee
 - Returned table of pseudo-employee data from database with buttons to update/delete employee
 
-![Admin Update Salary](./client\src\assets\imgs\admin-salary.png)
+![Admin Update Salary](./client/src/assets/imgs/admin-salary.png)
 
 - Admin is able to update all employees' salary by a percentage within a specific range
 - Form to update salary by percentage within the salary range
