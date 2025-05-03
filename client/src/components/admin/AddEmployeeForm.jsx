@@ -30,7 +30,9 @@ export default function AddEmployeeForm() {
       setMsg({ variant: "success", text: res.status || "Employee added" });
       setTimeout(() => nav("/admin"), 1000);
     } catch (err) {
-      setMsg({ variant: "danger", text: "Failed to add employee" });
+      const serverMsg =
+        err.response?.data?.error || err.message || "Failed to add employee";
+      setMsg({ variant: "danger", text: serverMsg });
     }
   };
 
@@ -46,9 +48,10 @@ export default function AddEmployeeForm() {
             <Form.Control
               name="empid"
               type="number"
+              min="1"
               value={form.empid}
               onChange={handleChange}
-              placeholder="e.g. 1001"
+              placeholder="e.g. 101"
               required
             />
           </Form.Group>
@@ -59,7 +62,7 @@ export default function AddEmployeeForm() {
               name="fname"
               value={form.fname}
               onChange={handleChange}
-              placeholder="e.g. Alice"
+              placeholder="e.g. Jane"
               required
             />
           </Form.Group>
@@ -70,7 +73,7 @@ export default function AddEmployeeForm() {
               name="lname"
               value={form.lname}
               onChange={handleChange}
-              placeholder="e.g. Smith"
+              placeholder="e.g. Doe"
               required
             />
           </Form.Group>
@@ -81,6 +84,7 @@ export default function AddEmployeeForm() {
               name="email"
               value={form.email}
               onChange={handleChange}
+              placeholder="jane@example.com"
               required
             />
           </Form.Group>
@@ -104,6 +108,7 @@ export default function AddEmployeeForm() {
               name="salary"
               type="number"
               step="0.01"
+              min="0"
               value={form.salary}
               onChange={handleChange}
               placeholder="e.g. 50000"
@@ -130,7 +135,6 @@ export default function AddEmployeeForm() {
               name="username"
               value={form.username}
               onChange={handleChange}
-              placeholder="login username"
               required
             />
           </Form.Group>
@@ -139,10 +143,10 @@ export default function AddEmployeeForm() {
             <Form.Label>Password</Form.Label>
             <Form.Control
               name="password"
-              type="password"
+              defaultValue="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="login password"
+              placeholder="password"
               required
             />
           </Form.Group>

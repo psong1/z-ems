@@ -6,13 +6,15 @@ import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import AddEmployeeForm from "./components/admin/AddEmployeeForm";
 import EmployeeSearch from "./components/admin/EmployeeSearch";
-import GeneratePayrollForm from "./components/admin/GeneratePayrollForm";
 import EmployeeDashboard from "./components/employee/EmployeeDashboard";
+import AdminPayrollPanel from "./components/admin/PayrollAdminPanel";
+import AdminUpdateSalary from "./components/admin/AdminUpdateSalary";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function App() {
   const [user, setUser] = useState(null);
 
+  // 1) If not logged in, only show login (any other path → /login)
   if (!user) {
     return (
       <Routes>
@@ -22,9 +24,10 @@ export default function App() {
     );
   }
 
+  // 2) Once logged in, show protected routes (no more /login)
   return (
     <Routes>
-      {/* Redirect root */}
+      {/* Redirect root → appropriate dashboard */}
       <Route
         path="/"
         element={
@@ -37,12 +40,15 @@ export default function App() {
 
       {/* Admin area */}
       {user.role === "admin" && (
-        <Route element={<AdminLayout user={user} />}>
-          {/* landing dashboard could be at /admin */}
-          <Route path="/admin" element={<AdminDashboard user={user} />} />
-          <Route path="/admin/add" element={<AddEmployeeForm />} />
-          <Route path="/admin/search" element={<EmployeeSearch />} />
-          <Route path="/admin/generate" element={<GeneratePayrollForm />} />
+        <Route
+          path="/admin"
+          element={<AdminLayout user={user} setUser={setUser} />}
+        >
+          <Route index element={<AdminDashboard user={user} />} />
+          <Route path="add" element={<AddEmployeeForm />} />
+          <Route path="search" element={<EmployeeSearch />} />
+          <Route path="generate" element={<AdminPayrollPanel />} />
+          <Route path="update" element={<AdminUpdateSalary />} />
         </Route>
       )}
 
@@ -50,10 +56,11 @@ export default function App() {
       {user.role === "employee" && (
         <Route
           path="/employee"
-          element={<EmployeeDashboard empid={user.empid} />}
+          element={<EmployeeDashboard empid={user.empid} setUser={setUser} />}
         />
       )}
 
+      {/* Catch‑all */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
