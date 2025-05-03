@@ -40,6 +40,7 @@
 ## [Installation](#table-of-contents)
 
 - **Node.js must be installed to run "npm install"**
+- **Maven must be installed to compile pom.xml**
 - git clone the repository
 - "npm i" is required at root, client, and server (node) to install all dependencies
 
