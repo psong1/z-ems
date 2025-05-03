@@ -19,7 +19,7 @@ public class FTEmployeeAccess {
 
     public Employee getEmployeeById(int empid, int currentEmpId) throws SQLException {
         if (empid != currentEmpId) {
-            throw new SecurityException("Access denied: cannot view other employees’ data");
+            throw new SecurityException("Access denied: cannot view other employees' data");
         }
 
         String sql = "SELECT empid, fname, lname, email, hireDate, salary, SSN, username, password, role "

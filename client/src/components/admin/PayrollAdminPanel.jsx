@@ -138,7 +138,7 @@ export default function AdminPayrollPanel() {
       {/* TOTALS FORM */}
       {panel === "totals" && (
         <Form onSubmit={handleTotals}>
-          <Row className="g-2">
+          <Row className="g-2 align-items-end">
             <Col md>
               <Form.Group>
                 <Form.Label>Month</Form.Label>
@@ -166,7 +166,7 @@ export default function AdminPayrollPanel() {
               </Form.Group>
             </Col>
             <Col md>
-              <Form.Label>Totals Type</Form.Label>
+              <Form.Label className="d-block">Totals Type</Form.Label>
               <ButtonGroup>
                 <ToggleButton
                   id="totals-job"

@@ -2,6 +2,7 @@ import React from "react";
 import { Card, ListGroup, ListGroupItem } from "react-bootstrap";
 
 export default function PersonalInfoCard({ user }) {
+  console.log(user);
   const date = new Date(user.hireDate).toLocaleDateString();
   return (
     <Card className="mb-4">

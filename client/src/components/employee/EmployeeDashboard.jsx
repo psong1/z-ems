@@ -9,7 +9,7 @@ import {
   Row,
   Col,
 } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+
 import { getInfo, getPayrollHistory } from "../../api/employee";
 import Hero from "../hero/Hero";
 import PayrollHistoryTable from "./PayrollHistoryTable";
@@ -21,7 +21,6 @@ export default function EmployeeDashboard({ empid, setUser }) {
   const [history, setHistory] = useState(null);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("profile");
-  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([getInfo(empid), getPayrollHistory(empid)])
@@ -34,12 +33,6 @@ export default function EmployeeDashboard({ empid, setUser }) {
         setError("Failed to load your data");
       });
   }, [empid]);
-
-  // const handleLogout = () => {
-  //   localStorage.removeItem("jwt");
-  //   setUser(null);
-  //   navigate("/login", { replace: true });
-  // };
 
   if (error) {
     return (
@@ -65,7 +58,8 @@ export default function EmployeeDashboard({ empid, setUser }) {
         <Row>
           <Col>
             <h5>
-              👋 Hello, {info.fname} {info.lname}
+              👋 Hello, {info.fname} {info.lname} | Role:{" "}
+              {info.role.toUpperCase()}
             </h5>
           </Col>
           <Col className="text-end">

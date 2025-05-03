@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Alert, Button, Form, Container } from "react-bootstrap";
 import { login } from "../../api/auth";
 import Hero from "../hero/Hero";
-import "../../assets/css/auth/LoginPage.css";
 
 export default function LoginPage({ setUser }) {
   const [email, setEmail] = useState("");
