@@ -1,16 +1,17 @@
 package com.example.service;
 import java.sql.Connection;
+import java.sql.SQLException;
 
-import com.example.models.Employee;
+import com.example.access.AdminAccess;
 
 public class SalaryService {
-    private Connection connection;
+    private AdminAccess adminAccess;
 
-    public double getSalary(Employee emp) {
-        return 1.0;
+    public SalaryService(Connection connection) {
+        this.adminAccess = new AdminAccess(connection);
     }
 
-    public void updateSalary(Employee emp) {
-        
+    public void updateSalaryRange(double percentage, double minSalary, double maxSalary) throws SQLException {
+        adminAccess.updateSalary(percentage, minSalary, maxSalary);
     }
 }

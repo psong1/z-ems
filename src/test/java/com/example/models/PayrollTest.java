@@ -1,6 +1,6 @@
 package com.example.models;
 
-import java.util.Date;
+import java.sql.Date;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -9,7 +9,7 @@ public class PayrollTest {
 
     @Test
     public void testConstructorAndGetters() {
-        Date payDate = new Date();
+        Date payDate = new Date(System.currentTimeMillis());
         Payroll payroll = new Payroll(
             1001,         // payID
             payDate,      // pay_date
@@ -38,7 +38,7 @@ public class PayrollTest {
     @Test
     public void testSetters() {
         Payroll payroll = new Payroll(
-            0, new Date(),
+            0, new Date(System.currentTimeMillis()),
             0.0,   // earnings
             0.0,   // fed_tax
             0.0,   // fed_med
@@ -49,7 +49,7 @@ public class PayrollTest {
             0      // empid
         );
 
-        Date newDate = new Date();
+        Date newDate = new Date(System.currentTimeMillis());
         payroll.setPayID(2002);
         payroll.setPayDate(newDate);
         payroll.setEarnings(8000.0);

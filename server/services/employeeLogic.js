@@ -1,22 +1,19 @@
-// server/services/employeeLogic.js
+require("dotenv").config();
 const axios = require("axios");
-const JAVA_API = process.env.JAVA_API || "http://localhost:8080/api";
+const JAVA_API = process.env.JAVA_API;
 
-async function getInfo(empid, token) {
-  const resp = await axios.get(`${JAVA_API}/employee`, {
-    params: { action: "getSelf", empid },
+async function getSelf(token) {
+  const res = await axios.get(`${JAVA_API}/employee/self`, {
     headers: { Authorization: token },
   });
-  return resp.data;
+  return res.data;
 }
 
-async function getPayrollHistory(empid, token) {
-  // this must be exactly the same as getInfo, just different action
-  const resp = await axios.get(`${JAVA_API}/employee`, {
-    params: { action: "getPayrollHistory", empid },
+async function getPayrollHistory(token) {
+  const res = await axios.get(`${JAVA_API}/employee/payroll`, {
     headers: { Authorization: token },
   });
-  return resp.data;
+  return res.data;
 }
 
-module.exports = { getInfo, getPayrollHistory };
+module.exports = { getSelf, getPayrollHistory };

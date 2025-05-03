@@ -1,5 +1,5 @@
 package com.example.models;
-import java.util.Date;
+import java.sql.Date;
 
 public class Payroll {
     private int payID;
@@ -106,5 +106,5 @@ public class Payroll {
         this.empid = empid;
     }
 
-    
+
 }
