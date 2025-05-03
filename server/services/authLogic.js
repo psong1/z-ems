@@ -1,4 +1,3 @@
-// server/services/authLogic.js
 const axios = require("axios");
 require("dotenv").config();
 

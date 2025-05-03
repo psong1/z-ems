@@ -1,9 +1,15 @@
 package com.example.service;
+
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.example.models.Payroll;
 
 public class GeneratePayroll {
     private Connection connection;
@@ -11,101 +17,103 @@ public class GeneratePayroll {
     public GeneratePayroll(Connection connection) {
         this.connection = connection;
     }
-    // all are void to get rid of errors but will need to be StringBuilders
-    public StringBuilder generateEmployeePayroll(int empid) {
-        StringBuilder payrollInfo = new StringBuilder();
-    String sql = "SELECT e.fname, e.lname, e.empid, e.salary, p.pay_date, p.earnings, p.fed_tax, p.fed_med, p.fed_SS, p.state_tax, p.retire_401k, p.health_care "
-               + "FROM employees e "
-               + "JOIN payroll p ON e.empid = p.empid "
-               + "WHERE e.empid = ?";
-    try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-        stmt.setInt(1, empid);
-        try (ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) { 
-                String fname = rs.getString("fname");
-                String lname = rs.getString("lname");
-                Date payDate = rs.getDate("pay_date");
-                double salary = rs.getDouble("salary");
-                double earnings = rs.getDouble("earnings");
-                double fedTax = rs.getDouble("fed_tax");
-                double fedMed = rs.getDouble("fed_med");
-                double fedSS = rs.getDouble("fed_SS");
-                double stateTax = rs.getDouble("state_tax");
-                double retire401k = rs.getDouble("retire_401k");
-                double healthCare = rs.getDouble("health_care");
 
-                // Build the payroll info for the employee
-                payrollInfo.append(String.format("Employee: %s %s (ID: %d)%n", fname, lname, empid));
-                payrollInfo.append(String.format("Pay Date: %s%n", payDate.toString()));
-                payrollInfo.append(String.format("Earnings: $%.2f%n", earnings));
-                payrollInfo.append(String.format("Employee Salary: $%.2f%n", salary));
-                payrollInfo.append(String.format("Federal Tax: $%.2f%n", fedTax));
-                payrollInfo.append(String.format("Federal Med: $%.2f%n", fedMed));
-                payrollInfo.append(String.format("Social Security: $%.2f%n", fedSS));
-                payrollInfo.append(String.format("State Tax: $%.2f%n", stateTax));
-                payrollInfo.append(String.format("401k Retirement: $%.2f%n", retire401k));
-                payrollInfo.append(String.format("Health Care: $%.2f%n", healthCare));
+    public List<Payroll> getAllPayrollHistory() throws SQLException {
+        String sql = """
+            SELECT
+                payID,
+                pay_date,
+                earnings,
+                fed_tax,
+                fed_med,
+                fed_SS,
+                state_tax,
+                retire_401k,
+                health_care,
+                empid
+            FROM payroll
+            ORDER BY empid, pay_date
+            """;
+    
+        List<Payroll> list = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Payroll(
+                    rs.getInt("payID"),
+                    rs.getDate("pay_date"),
+                    rs.getDouble("earnings"),
+                    rs.getDouble("fed_tax"),
+                    rs.getDouble("fed_med"),
+                    rs.getDouble("fed_SS"),
+                    rs.getDouble("state_tax"),
+                    rs.getDouble("retire_401k"),
+                    rs.getDouble("health_care"),
+                    rs.getInt("empid")
+                ));
             }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return list;
     }
-    return payrollInfo;
-}
-    
 
-    public StringBuilder generatePayrollByDiv() {
-        StringBuilder report = new StringBuilder();
-
-    String sql = "SELECT d.division_name, SUM(p.earnings) AS total_pay " 
-             + "FROM payroll p " 
-             + "JOIN employees e ON p.empid = e.empid " 
-             + "JOIN employee_division ed ON e.empid = ed.empid " 
-             + "JOIN division d ON ed.div_ID = d.div_ID " 
-             + "GROUP BY d.division_name " ;
-
-
-    try (PreparedStatement stmt = connection.prepareStatement(sql);
-         ResultSet rs = stmt.executeQuery()) {
-
-
-        while (rs.next()) {
-            String divisionName = rs.getString("division_name");
-            double totalPay = rs.getDouble("total_pay");
-
-            report.append(String.format("%s: $%.2f%n", divisionName, totalPay));
+    public Map<String,Double> getTotalPayByJobTitle(int month, int year, String jobTitle) throws SQLException {
+        String sql = """
+        SELECT jt.job_title    AS job_title,
+                SUM(p.earnings) AS total_pay
+            FROM payroll p
+            JOIN employees e             ON p.empid = e.empid
+            JOIN employee_job_titles ejt ON e.empid = ejt.empid
+            JOIN job_titles jt           ON ejt.job_title_id = jt.job_title_id
+        WHERE MONTH(p.pay_date) = ? 
+            AND YEAR(p.pay_date)  = ?
+            AND jt.job_title      = ?
+        GROUP BY jt.job_title
+        """;
+        Map<String,Double> totals = new HashMap<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, month);
+            stmt.setInt(2, year);
+            stmt.setString(3, jobTitle);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    totals.put(
+                        rs.getString("job_title"),
+                        rs.getDouble("total_pay")
+                    );
+                }
+            }
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return totals;
     }
 
-    // Return the generated report
-    return report;
-}
-    
-    public StringBuilder generatePayrollByJobTitle() {
-        StringBuilder report = new StringBuilder();
-    String sql = "SELECT jt.title AS job_title, SUM(p.earnings) AS total_pay "
-               + "FROM payroll p "
-               + "JOIN employees e ON p.empid = e.empid "
-               + "JOIN employee_job_titles ejt ON e.empid = ejt.empid "
-               + "JOIN job_titles jt ON ejt.job_title_id = jt.job_title_id "
-               + "GROUP BY jt.title ";
-    
-    try (PreparedStatement stmt = connection.prepareStatement(sql);
-         ResultSet rs = stmt.executeQuery()) {
-
-        while (rs.next()) {
-            String jobTitle = rs.getString("job_title");
-            double totalPay = rs.getDouble("total_pay");
-
-            report.append(String.format("%s: $%.2f%n", jobTitle, totalPay));
+    public Map<String,Double> getTotalPayByDivision(int month, int year, String divisionName) throws SQLException {
+        String sql = """
+        SELECT d.Name         AS division,
+                SUM(p.earnings) AS total_pay
+            FROM payroll p
+            JOIN employees e          ON p.empid = e.empid
+            JOIN employee_division ed ON e.empid = ed.empid
+            JOIN division d           ON ed.div_ID = d.ID
+        WHERE MONTH(p.pay_date) = ?
+            AND YEAR(p.pay_date)  = ?
+            AND d.Name            = ?
+        GROUP BY d.Name
+        """;
+        Map<String,Double> totals = new HashMap<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, month);
+            stmt.setInt(2, year);
+            stmt.setString(3, divisionName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    totals.put(
+                        rs.getString("division"),
+                        rs.getDouble("total_pay")
+                    );
+                }
+            }
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return totals;
     }
-    return report;
-}
+
 }

@@ -3,8 +3,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.models.Employee;
+import com.example.models.SalaryUpdate;
 
 public class AdminAccess {
     private Connection connection;
@@ -158,8 +161,33 @@ public class AdminAccess {
         }
     }
 
+    public List<String> getAllJobTitles() throws SQLException {
+        String sql = "SELECT job_title FROM job_titles ORDER BY job_title";
+        List<String> result = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+          while (rs.next()) {
+            result.add(rs.getString("job_title"));
+          }
+        }
+        return result;
+      }
+    
+      public List<String> getAllDivisions() throws SQLException {
+        String sql = "SELECT Name FROM division ORDER BY Name";
+        List<String> result = new ArrayList<>();
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+          while (rs.next()) {
+            result.add(rs.getString("Name"));
+          }
+        }
+        return result;
+      }
+
+
     public void updateSalary(double percentage, double minSalary, double maxSalary) throws SQLException {
-        String sql = "UPDATE employees SET salary = salary * ? WHERE salary >= ? AND salary < ?";
+        String sql = "UPDATE employees SET Salary = Salary * ? WHERE Salary >= ? AND Salary < ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             double multiplier = 1 + (percentage / 100.0);
             stmt.setDouble(1, multiplier);
@@ -171,5 +199,47 @@ public class AdminAccess {
                 throw new IllegalArgumentException("Update Salary failed, No employees found in the specified salary range.");
             }
         }
+    }
+
+    public List<SalaryUpdate> updateSalaryAndFetch(
+            double percentage, double minSalary, double maxSalary
+        ) throws SQLException
+    {
+        double multiplier = 1 + (percentage / 100.0);
+        String selectSql = """
+            SELECT empid, fname, lname, salary
+            FROM employees
+            WHERE salary >= ? AND salary < ?
+            """;
+        List<SalaryUpdate> results = new ArrayList<>();
+        try (PreparedStatement ps = connection.prepareStatement(selectSql)) {
+            ps.setDouble(1, minSalary);
+            ps.setDouble(2, maxSalary);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int    id  = rs.getInt("empid");
+                    String fn  = rs.getString("fname");
+                    String ln  = rs.getString("lname");
+                    double old = rs.getDouble("salary");
+                    double neu = old * multiplier;
+                    results.add(new SalaryUpdate(id, fn, ln, old, neu));
+                }
+            }
+        }
+
+        if (!results.isEmpty()) {
+            String updateSql = """
+                UPDATE employees
+                SET salary = salary * ?
+                WHERE salary >= ? AND salary < ?
+                """;
+            try (PreparedStatement ps2 = connection.prepareStatement(updateSql)) {
+                ps2.setDouble(1, multiplier);
+                ps2.setDouble(2, minSalary);
+                ps2.setDouble(3, maxSalary);
+                ps2.executeUpdate();
+            }
+        }
+        return results;
     }
 }
